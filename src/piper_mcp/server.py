@@ -34,7 +34,11 @@ SKILL_SCRIPTS = (
 
 
 def voices_dir() -> Path:
-    return Path(os.environ.get("PIPER_VOICES_DIR") or Path.home() / ".local/share/piper-voices").expanduser()
+    raw = os.environ.get("PIPER_VOICES_DIR")
+    path = Path(raw).expanduser() if raw else Path.home() / ".local/share/piper-voices"
+    if raw and not path.is_dir():  # évite « aucune voix » quand la variable est mal recopiée
+        raise ToolError(f"PIPER_VOICES_DIR ne pointe pas sur un dossier : {raw!r}")
+    return path
 
 
 def out_dir() -> Path:
